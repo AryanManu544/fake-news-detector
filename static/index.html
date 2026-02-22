@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fake News Detector for Students</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon" aria-hidden="true">◇</span>
+        <span class="logo-text">Fake News Detector</span>
+      </div>
+      <p class="tagline">Analyze articles. Assess credibility. Get trustworthy summaries.</p>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <h1 class="hero-title">Check before you share</h1>
+      <p class="hero-subtitle">Paste an article or enter a URL. We’ll analyze credibility and give you a concise summary.</p>
+
+      <div class="input-card">
+        <div class="tabs">
+          <button type="button" class="tab active" data-mode="text" aria-selected="true">Paste article</button>
+          <button type="button" class="tab" data-mode="url" aria-selected="false">Enter URL</button>
+        </div>
+
+        <div class="input-area input-area--text active">
+          <textarea
+            id="article-text"
+            class="textarea"
+            placeholder="Paste the full article or excerpt here…"
+            rows="6"
+            autofocus
+          ></textarea>
+        </div>
+        <div class="input-area input-area--url">
+          <input
+            type="url"
+            id="article-url"
+            class="input-url"
+            placeholder="https://example.com/article"
+            autocomplete="url"
+          />
+        </div>
+
+        <button type="button" id="analyze-btn" class="btn btn-primary">
+          <span class="btn-text">Analyze article</span>
+          <span class="btn-loader" aria-hidden="true"></span>
+        </button>
+      </div>
+    </section>
+
+    <section id="results-section" class="results-section hidden" aria-live="polite">
+      <div class="results-inner">
+        <div class="result-card">
+          <div class="result-header">
+            <h2 class="result-title">Analysis result</h2>
+            <div id="credibility-badge" class="badge" data-state="">
+              <span class="badge-icon"></span>
+              <span class="badge-label"></span>
+              <span class="badge-confidence"></span>
+            </div>
+          </div>
+          <div class="result-body">
+            <div class="result-block">
+              <h3 class="result-block-title">Summary</h3>
+              <p id="result-summary" class="result-summary"></p>
+            </div>
+            <div class="result-block">
+              <h3 class="result-block-title">What this means</h3>
+              <p id="result-explanation" class="result-explanation"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="error-section" class="error-section hidden" role="alert">
+      <div class="error-card">
+        <span class="error-icon" aria-hidden="true">!</span>
+        <p id="error-message" class="error-message"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>For students and educators. Always cross-check important claims with multiple trusted sources.</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
