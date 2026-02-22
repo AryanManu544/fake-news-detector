@@ -5,10 +5,12 @@
   const resultsSection = document.getElementById("results-section");
   const errorSection = document.getElementById("error-section");
   const errorMessage = document.getElementById("error-message");
-  const credibilityBadge = document.getElementById("credibility-badge");
-  const badgeLabel = credibilityBadge.querySelector(".badge-label");
-  const badgeConfidence = credibilityBadge.querySelector(".badge-confidence");
-  const badgeIcon = credibilityBadge.querySelector(".badge-icon");
+  const textHint = document.getElementById("text-hint");
+  const credibilityRing = document.getElementById("credibility-ring");
+  const ringFill = document.getElementById("ring-fill");
+  const credibilityIcon = document.getElementById("credibility-icon");
+  const credibilityLabel = document.getElementById("credibility-label");
+  const credibilityConfidence = document.getElementById("credibility-confidence");
   const resultSummary = document.getElementById("result-summary");
   const resultExplanation = document.getElementById("result-explanation");
 
@@ -16,16 +18,33 @@
   const inputAreaText = document.querySelector(".input-area--text");
   const inputAreaUrl = document.querySelector(".input-area--url");
 
+  const RING_CIRCUMFERENCE = 2 * Math.PI * 36;
+
   function setMode(mode) {
     const isUrl = mode === "url";
-    tabs.forEach((t) => t.classList.toggle("active", t.dataset.mode === mode));
-    tabs.forEach((t) => t.setAttribute("aria-selected", t.dataset.mode === mode ? "true" : "false"));
+    tabs.forEach(function (t) {
+      t.classList.toggle("active", t.dataset.mode === mode);
+      t.setAttribute("aria-selected", t.dataset.mode === mode ? "true" : "false");
+    });
     inputAreaText.classList.toggle("active", !isUrl);
     inputAreaUrl.classList.toggle("active", isUrl);
+    inputAreaText.hidden = isUrl;
+    inputAreaUrl.hidden = !isUrl;
+    if (!isUrl) articleText.focus();
+    else articleUrl.focus();
   }
 
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => setMode(tab.dataset.mode));
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      setMode(tab.dataset.mode);
+    });
+  });
+
+  articleText.addEventListener("input", function () {
+    const len = (articleText.value || "").trim().length;
+    if (len === 0) textHint.textContent = "";
+    else if (len < 100) textHint.textContent = "Add more text for a better analysis (at least a few sentences).";
+    else textHint.textContent = len + " characters";
   });
 
   function showError(msg) {
@@ -38,15 +57,26 @@
     errorSection.classList.add("hidden");
   }
 
+  function setRingProgress(percent) {
+    if (!ringFill) return;
+    var offset = RING_CIRCUMFERENCE - (RING_CIRCUMFERENCE * percent) / 100;
+    ringFill.setAttribute("stroke-dasharray", RING_CIRCUMFERENCE);
+    ringFill.setAttribute("stroke-dashoffset", Math.max(0, offset));
+  }
+
   function showResults(data) {
     hideError();
-    const state = data.label === "real" ? "reliable" : data.label === "fake" ? "fake" : "unknown";
-    credibilityBadge.setAttribute("data-state", state);
+    var state = data.label === "real" ? "reliable" : data.label === "fake" ? "fake" : "unknown";
+    credibilityRing.setAttribute("data-state", state);
 
-    const labels = { reliable: "Likely reliable", fake: "Likely unreliable", unknown: "Uncertain" };
-    badgeLabel.textContent = labels[state] || "Uncertain";
-    badgeConfidence.textContent = data.confidence != null ? `(${Math.round(data.confidence * 100)}%)` : "";
-    badgeIcon.textContent = state === "reliable" ? "✓" : state === "fake" ? "⚠" : "?";
+    var labels = { reliable: "Likely reliable", fake: "Likely unreliable", unknown: "Uncertain" };
+    credibilityLabel.textContent = labels[state] || "Uncertain";
+    var confidencePercent = data.confidence != null ? Math.round(data.confidence * 100) : 0;
+    credibilityConfidence.textContent = confidencePercent ? confidencePercent + "% confidence" : "";
+    setRingProgress(confidencePercent);
+
+    var icons = { reliable: "✓", fake: "⚠", unknown: "?" };
+    credibilityIcon.textContent = icons[state] || "?";
 
     resultSummary.textContent = data.summary || "No summary available.";
     resultExplanation.textContent = data.explanation || "";
@@ -60,10 +90,10 @@
     analyzeBtn.classList.toggle("loading", loading);
   }
 
-  analyzeBtn.addEventListener("click", async () => {
-    const isUrl = inputAreaUrl.classList.contains("active");
-    const text = (articleText.value || "").trim();
-    const url = (articleUrl.value || "").trim();
+  analyzeBtn.addEventListener("click", async function () {
+    var isUrl = inputAreaUrl.classList.contains("active");
+    var text = (articleText.value || "").trim();
+    var url = (articleUrl.value || "").trim();
 
     if (isUrl && !url) {
       showError("Please enter a valid URL.");
@@ -78,16 +108,14 @@
     setLoading(true);
 
     try {
-      const body = isUrl
-        ? { url: url, text: null }
-        : { text: text, url: null };
-      const res = await fetch("/api/analyze", {
+      var body = isUrl ? { url: url, text: null } : { text: text, url: null };
+      var res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
-      const data = await res.json().catch(() => ({}));
+      var data = await res.json().catch(function () { return {}; });
 
       if (!res.ok) {
         showError(data.detail || res.statusText || "Analysis failed.");

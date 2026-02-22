@@ -6,16 +6,22 @@
   <title>Fake News Detector for Students</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
+  <div class="bg-gradient" aria-hidden="true"></div>
   <div class="noise" aria-hidden="true"></div>
 
   <header class="header">
     <div class="header-inner">
       <div class="logo">
-        <span class="logo-icon" aria-hidden="true">◇</span>
+        <span class="logo-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 4L4 10v8l10 6 10-6v-8L14 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="none"/>
+            <path d="M14 14l6-3.5v4L14 18l-6-3.5v-4L14 14z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </span>
         <span class="logo-text">Fake News Detector</span>
       </div>
       <p class="tagline">Analyze articles. Assess credibility. Get trustworthy summaries.</p>
@@ -28,12 +34,15 @@
       <p class="hero-subtitle">Paste an article or enter a URL. We’ll analyze credibility and give you a concise summary.</p>
 
       <div class="input-card">
-        <div class="tabs">
-          <button type="button" class="tab active" data-mode="text" aria-selected="true">Paste article</button>
-          <button type="button" class="tab" data-mode="url" aria-selected="false">Enter URL</button>
+        <div class="tabs-wrap">
+          <div class="tabs" role="tablist">
+            <button type="button" class="tab active" data-mode="text" role="tab" aria-selected="true">Paste article</button>
+            <button type="button" class="tab" data-mode="url" role="tab" aria-selected="false">Enter URL</button>
+          </div>
+          <div class="tab-indicator" aria-hidden="true"></div>
         </div>
 
-        <div class="input-area input-area--text active">
+        <div class="input-area input-area--text active" role="tabpanel">
           <textarea
             id="article-text"
             class="textarea"
@@ -41,15 +50,19 @@
             rows="6"
             autofocus
           ></textarea>
+          <span class="input-hint" id="text-hint"></span>
         </div>
-        <div class="input-area input-area--url">
-          <input
-            type="url"
-            id="article-url"
-            class="input-url"
-            placeholder="https://example.com/article"
-            autocomplete="url"
-          />
+        <div class="input-area input-area--url" role="tabpanel" hidden>
+          <div class="url-input-wrap">
+            <span class="url-prefix" aria-hidden="true">🔗</span>
+            <input
+              type="url"
+              id="article-url"
+              class="input-url"
+              placeholder="https://example.com/article"
+              autocomplete="url"
+            />
+          </div>
         </div>
 
         <button type="button" id="analyze-btn" class="btn btn-primary">
@@ -62,20 +75,27 @@
     <section id="results-section" class="results-section hidden" aria-live="polite">
       <div class="results-inner">
         <div class="result-card">
-          <div class="result-header">
-            <h2 class="result-title">Analysis result</h2>
-            <div id="credibility-badge" class="badge" data-state="">
-              <span class="badge-icon"></span>
-              <span class="badge-label"></span>
-              <span class="badge-confidence"></span>
+          <div class="result-hero">
+            <div class="credibility-block">
+              <div id="credibility-ring" class="credibility-ring" data-state="">
+                <svg class="ring-svg" viewBox="0 0 80 80">
+                  <circle class="ring-bg" cx="40" cy="40" r="36" fill="none" stroke-width="6"/>
+                  <circle id="ring-fill" class="ring-fill" cx="40" cy="40" r="36" fill="none" stroke-width="6" stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
+                </svg>
+                <span class="credibility-icon" id="credibility-icon"></span>
+              </div>
+              <div class="credibility-meta">
+                <span id="credibility-label" class="credibility-label"></span>
+                <span id="credibility-confidence" class="credibility-confidence"></span>
+              </div>
             </div>
           </div>
           <div class="result-body">
-            <div class="result-block">
+            <div class="result-block result-block--summary">
               <h3 class="result-block-title">Summary</h3>
               <p id="result-summary" class="result-summary"></p>
             </div>
-            <div class="result-block">
+            <div class="result-block result-block--explanation">
               <h3 class="result-block-title">What this means</h3>
               <p id="result-explanation" class="result-explanation"></p>
             </div>
@@ -86,14 +106,16 @@
 
     <section id="error-section" class="error-section hidden" role="alert">
       <div class="error-card">
-        <span class="error-icon" aria-hidden="true">!</span>
+        <span class="error-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 6v4M10 14h.01"/><circle cx="10" cy="10" r="8"/></svg>
+        </span>
         <p id="error-message" class="error-message"></p>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <p>For students and educators. Always cross-check important claims with multiple trusted sources.</p>
+    <p class="footer-tip">For students and educators. Always cross-check important claims with multiple trusted sources.</p>
   </footer>
 
   <script src="/static/app.js"></script>
